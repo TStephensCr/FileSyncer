@@ -45,4 +45,25 @@ for file in $only_in_dir2; do
     fi
 done
 
-echo -e "\nSynchronization complete. Both directories should now contain the same files."
+echo -e "\nCopied all files. Now checking for False Friends(same name, different contents). These conflicts should be manually resolved by the user."
+
+# Loop through files in the first directory
+for file1 in "$dir1"/*; do
+    filename=$(basename "$file1")
+    file2="$dir2/$filename"
+
+    # Check if the file exists in both directories
+    if [ -f "$file2" ]; then
+        # Compute the hashes of the two files
+        hash1=$(sha256sum "$file1" | awk '{ print $1 }')
+        hash2=$(sha256sum "$file2" | awk '{ print $1 }')
+
+        # Compare the hashes
+        if [ "$hash1" != "$hash2" ]; then
+            echo "Files differ: $file1 and $file2"
+        fi
+    fi
+done
+
+
+echo -e "\nSynchronization complete. Both directories should now contain the same files. Make sure you resolve any conflicts that may have been detected."
